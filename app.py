@@ -3,7 +3,7 @@ import streamlit as st
 from baseline import greedy_assignment
 from data import SCENARIOS, get_scenario
 from optimizer import optimal_assignment
-from visualization import assignment_chart
+from visualization import assignment_chart, cost_chart
 
 
 def show_result(title, result, scenario):
@@ -104,6 +104,12 @@ if reference_cost == 0:
     st.caption("Percentage reduction is undefined when the reference cost is zero.")
 
 st.caption("All costs use synthetic units. Lower total cost is better.")
+st.subheader("Cost breakdown")
+st.caption("Assignment cost + pending penalty = total cost.")
+try:
+    st.vega_lite_chart(cost_chart(reference, optimized), width="stretch", theme=None)
+except (ValueError, RuntimeError):
+    st.caption("Cost chart unavailable. The metrics and comparison tables remain available.")
 st.divider()
 st.subheader("Comparison")
 left, right = st.columns(2)

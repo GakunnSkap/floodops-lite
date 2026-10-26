@@ -1,4 +1,58 @@
-"""Illustrative layout only: positions have no geographic meaning."""
+"""Charts for synthetic costs and illustrative, non-geographic assignments."""
+
+
+def cost_chart(reference, optimized):
+    segments = []
+    labels = []
+    for method, result in (("Greedy reference", reference), ("Optimized", optimized)):
+        assignment = result["assignment_cost"]
+        penalty = result["pending_penalty"]
+        total = result["total_cost"]
+        segments.extend([
+            {"method": method, "component": "Assignment cost", "cost": assignment,
+             "start": 0, "end": assignment},
+            {"method": method, "component": "Pending penalty", "cost": penalty,
+             "start": assignment, "end": total},
+        ])
+        labels.append({"method": method, "label": f"{assignment:g} + {penalty:g} = {total:g}"})
+    return {
+        "height": 230,
+        "background": "#f4f5f7",
+        "padding": {"left": 12, "right": 12, "top": 12, "bottom": 12},
+        "config": {
+            "view": {"stroke": None},
+            "axis": {"labelColor": "#334155", "titleColor": "#334155"},
+            "legend": {"labelColor": "#334155"},
+        },
+        "encoding": {"y": {"field": "method", "type": "nominal",
+                            "sort": ["Greedy reference", "Optimized"],
+                            "axis": {"title": None, "labelLimit": 120}}},
+        "layer": [
+            {
+                "data": {"values": segments},
+                "mark": {"type": "bar", "size": 24},
+                "encoding": {
+                    "x": {"field": "start", "type": "quantitative",
+                          "scale": {"domain": [0, max(reference["total_cost"], optimized["total_cost"], 1)]},
+                          "axis": {"title": "Synthetic cost", "tickCount": 3}},
+                    "x2": {"field": "end"},
+                    "color": {"field": "component", "type": "nominal",
+                              "scale": {"domain": ["Assignment cost", "Pending penalty"],
+                                        "range": ["#367da2", "#c58b36"]},
+                              "legend": {"title": None, "orient": "bottom", "columns": 1}},
+                    "tooltip": [{"field": "method", "title": "Method"},
+                                {"field": "component", "title": "Component"},
+                                {"field": "cost", "title": "Synthetic cost"}],
+                },
+            },
+            {
+                "data": {"values": labels},
+                "mark": {"type": "text", "align": "left", "dy": -23,
+                         "color": "#334155", "fontSize": 12},
+                "encoding": {"x": {"value": 0}, "text": {"field": "label"}},
+            },
+        ],
+    }
 
 
 def assignment_chart(scenario, result):
