@@ -2,7 +2,7 @@
 
 Prototipo educativo de IEEE-HKN Hack2Impact 2026 sobre asignación de recursos
 ante inundaciones en Guayaquil. Incluye un escenario sintético, una heurística
-de referencia y un optimizador; la aplicación solo presenta el proyecto.
+de referencia y un optimizador que se comparan en una aplicación Streamlit.
 No hay mapas y no es una herramienta validada para responder a emergencias.
 
 ## Ejecución
@@ -15,6 +15,13 @@ python -m streamlit run app.py
 ```
 
 Abrir la dirección indicada, normalmente http://localhost:8501. Detener con Ctrl+C.
+En la barra lateral se cambia la disponibilidad de equipos y la prioridad de cada
+zona. La penalización sigue siendo `100 × prioridad`. Ambos métodos se recalculan
+con las mismas entradas sin modificar los datos originales. La comparación muestra
+asignaciones, zonas pendientes, costos y reducción del objetivo; un empate se
+identifica expresamente y la reducción porcentual aparece como N/A si la referencia
+cuesta cero. La interfaz está en inglés; los nombres conservan su etiqueta simulada.
+
 En otra computadora, preparar el entorno antes de ejecutar Streamlit:
 
 ```bash
