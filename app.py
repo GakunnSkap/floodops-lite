@@ -7,8 +7,9 @@ from visualization import assignment_chart
 
 
 def show_result(title, result, scenario):
-    st.subheader(title)
-    st.metric("Total cost", result["total_cost"])
+    st.markdown(f"**{title}**")
+    st.caption("Priority-first heuristic" if title == "Greedy reference" else "Global cost minimum")
+    st.metric("Total cost", result["total_cost"], border=True)
     st.write(
         f"{len(result['assignments'])} served · "
         f"{len(result['pending_zones'])} pending"
@@ -28,7 +29,7 @@ def show_result(title, result, scenario):
         ])
     else:
         st.write("No teams assigned.")
-    st.write("Pending zones")
+    st.markdown("**Pending zones**")
     if result["pending_zones"]:
         st.table([
             {"Zone": z, "Name": zones[z]["name"], "Penalty": zones[z]["penalty"]}
@@ -39,19 +40,22 @@ def show_result(title, result, scenario):
 
 
 st.set_page_config(page_title="FloodOps Lite", layout="wide")
+st.caption("IEEE-HKN HACK2IMPACT 2026 · EDUCATIONAL PROTOTYPE")
 st.title("FloodOps Lite")
 st.write(
     "Compare response-team assignments under limited resources "
     "in an educational flood scenario for Guayaquil, Ecuador."
 )
-st.caption(
-    "Simulated zones, teams and costs. No operational data or emergency guidance."
-)
+with st.container(border=True):
+    st.markdown(
+        "**Synthetic data only** · Simulated zones, teams and costs. "
+        "No operational data or emergency guidance."
+    )
 
 try:
     scenario = get_scenario()
     with st.sidebar:
-        st.header("Scenario")
+        st.header("Explore a scenario")
         st.caption("Changes apply to this session; source data stays unchanged.")
         scenario_name = st.selectbox("Demo scenario", SCENARIOS, key="scenario_name")
         if st.session_state.get("loaded_scenario") != scenario_name:
@@ -63,12 +67,14 @@ try:
                 st.session_state[f"priority_{zone['id']}"] = zone["priority"]
             st.session_state["loaded_scenario"] = scenario_name
         st.caption("Selecting a preset resets the controls below. You can then edit them.")
+        st.divider()
         st.subheader("Team availability")
         for team in scenario["teams"]:
             team["available"] = st.checkbox(
                 f"{team['id']} — {team['name']}",
                 key=f"available_{team['id']}",
             )
+        st.divider()
         st.subheader("Zone priority")
         st.caption("1 = low · 2 = medium · 3 = high. Pending penalty = 100 × priority.")
         for zone in scenario["zones"]:
@@ -86,23 +92,27 @@ except ValueError:
 
 st.subheader("Summary")
 zones_column, teams_column, reduction_column = st.columns(3)
-zones_column.metric("Zones", len(scenario["zones"]))
-teams_column.metric("Available teams", sum(t["available"] for t in scenario["teams"]))
+zones_column.metric("Zones", len(scenario["zones"]), border=True)
+teams_column.metric("Available teams", sum(t["available"] for t in scenario["teams"]), border=True)
 reference_cost = reference["total_cost"]
 optimized_cost = optimized["total_cost"]
 reduction = (reference_cost - optimized_cost) / reference_cost * 100 if reference_cost else None
-reduction_column.metric("Objective reduction", f"{reduction:.2f}%" if reduction is not None else "N/A")
+reduction_column.metric("Objective reduction", f"{reduction:.2f}%" if reduction is not None else "N/A", border=True)
 if reference_cost == optimized_cost:
     st.info("Both methods have the same total cost for this scenario.")
 if reference_cost == 0:
     st.caption("Percentage reduction is undefined when the reference cost is zero.")
 
+st.caption("All costs use synthetic units. Lower total cost is better.")
+st.divider()
 st.subheader("Comparison")
 left, right = st.columns(2)
 with left:
-    show_result("Greedy reference", reference, scenario)
+    with st.container(border=True):
+        show_result("Greedy reference", reference, scenario)
 with right:
-    show_result("Optimized", optimized, scenario)
+    with st.container(border=True):
+        show_result("Optimized", optimized, scenario)
 
 reference_pairs = {a["team_id"]: a["zone_id"] for a in reference["assignments"]}
 optimized_pairs = {a["team_id"]: a["zone_id"] for a in optimized["assignments"]}
@@ -119,6 +129,7 @@ st.caption(
     f"total {optimized_cost - reference_cost:+g}."
 )
 
+st.divider()
 st.subheader("Illustrative assignment view")
 st.caption(
     "Schematic layout, not a geographic map. Positions are illustrative, not real "
@@ -136,6 +147,7 @@ st.caption(
     "services are required; the tables above remain available if the chart cannot load."
 )
 
+st.divider()
 st.subheader("How to read the results")
 st.write(
     "Total cost = assignment costs + penalties for pending zones. "
