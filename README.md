@@ -1,29 +1,21 @@
 # FloodOps Lite
 
-Prototipo educativo desarrollado para IEEE-HKN Hack2Impact 2026. Su objetivo es
-explorar la asignación de recursos limitados ante escenarios de inundación en
-Guayaquil, Ecuador.
+Prototipo educativo de IEEE-HKN Hack2Impact 2026 sobre asignación de recursos
+ante inundaciones en Guayaquil. Incluye un escenario sintético y una heurística
+de referencia; la aplicación solo presenta el proyecto. No hay optimizador ni
+mapas, y no es una herramienta validada para responder a emergencias.
 
-La aplicación muestra únicamente el nombre y la descripción del proyecto.
-El repositorio incluye un escenario simulado, todavía sin optimización ni mapas.
-No es un sistema operativo de emergencias ni una herramienta validada para tomar
-decisiones de respuesta.
+## Ejecución
 
-## Ejecución local
-
-Requiere Python 3.13 y las dependencias de `requirements.txt`. Desde la carpeta
-del repositorio, en la computadora preparada para el evento, utilizar el entorno
-existente, sin reinstalar paquetes:
+Desde la carpeta del repositorio, con Python 3.13 y el entorno preparado:
 
 ```bash
 source "$HOME/.venvs/hackathon-tools-py313/bin/activate"
 python -m streamlit run app.py
 ```
 
-Abrir la dirección local indicada por Streamlit, normalmente
-http://localhost:8501. Para detenerlo, pulsar Ctrl+C en la terminal.
-
-En otra computadora con Python 3.13, crear un entorno e instalar dependencias:
+Abrir la dirección indicada, normalmente http://localhost:8501. Detener con Ctrl+C.
+En otra computadora, preparar el entorno antes de ejecutar Streamlit:
 
 ```bash
 python3.13 -m venv .venv
@@ -32,60 +24,50 @@ python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-## Escenario educativo
+## Datos y modelo
 
-`data.py` ofrece `get_scenario()`, que devuelve datos nuevos en cada llamada,
-y `validate_scenario(scenario)`, que lanza `ValueError` ante datos inválidos.
-El diccionario contiene `simulated`, `zones`, `teams` y `costs`.
+`data.get_scenario()` devuelve un diccionario nuevo con `simulated: True`,
+`zones`, `teams` y `costs`. `validate_scenario()` rechaza datos inválidos con
+`ValueError`. La etiqueta de simulación es obligatoria; los nombres solo deben
+ser textos no vacíos.
 
-Las cuatro zonas y los dos equipos son ficticios, sin coordenadas ni información
-operativa real. Cada zona tiene `id`, `name`, `priority` y `penalty`; cada equipo
-tiene `id`, `name` y `available`. Las prioridades son 1 (baja), 2 (media) y 3
-(alta). Dejar una zona pendiente penaliza con 100 veces su prioridad.
+Las cuatro zonas y los dos equipos son ficticios: no hay coordenadas ni datos
+operativos reales. Las zonas tienen `id`, `name`, `priority` y `penalty`; los
+equipos tienen `id`, `name` y `available`. La prioridad va de 1 (baja) a 3 (alta),
+y la penalización por dejar una zona pendiente es `100 × prioridad`.
 
-La matriz `costs` tiene filas en el orden de `teams` y columnas en el orden de
-`zones`. Un número representa esfuerzo de asignación sintético: menor es mejor.
-No representa minutos, distancia ni dinero. `None` significa asignación
-incompatible y debe tratarse como prohibición, nunca como costo cero.
-La disponibilidad del equipo se comprueba por separado.
+Las filas de `costs` siguen el orden de los equipos y las columnas el de las zonas.
+Los números representan esfuerzo sintético, no minutos, distancias ni dinero.
+`None` prohíbe una combinación; la disponibilidad se indica por separado.
+Cada equipo puede atender como máximo una zona por ronda y cada zona recibir
+como máximo un equipo.
 
-El modelo previsto tiene una sola ronda: cada equipo atiende como máximo una
-zona y cada zona recibe como máximo un equipo. Las zonas pendientes son
-explícitas en el objetivo previsto: sumar costos de asignaciones realizadas y
-penalizaciones de zonas sin atender. Ambos usan la misma escala artificial;
-la prioridad es una preferencia mediante penalización, no una garantía absoluta.
-La escala elegida es un supuesto educativo que deberá revisarse antes de modelar.
-Todavía no se implementa un optimizador matemático.
+El objetivo compartido será sumar costos de asignación y penalizaciones de zonas
+pendientes. La escala es un supuesto educativo: priorizar mediante penalizaciones
+no garantiza atender siempre las zonas de mayor prioridad.
 
-Pruebas del escenario, desde el entorno activado:
+## Referencia y pruebas
+
+`baseline.greedy_assignment(scenario)` recorre zonas por penalización descendente
+(desempate por identificador) y elige el equipo libre, disponible y compatible
+más barato (desempate por identificador de equipo). Si no hay candidato, deja
+la zona pendiente. Asigna incluso si el costo supera la penalización; es una
+heurística y no garantiza el óptimo.
+
+Sin modificar la entrada, devuelve `assignments` (pares `team_id` y `zone_id`),
+`pending_zones`, `assignment_cost`, `pending_penalty` y `total_cost`.
+El escenario inicial produce E2→Z1 y E1→Z2, con Z4 y Z3 pendientes:
+**10 de asignación + 400 de penalización = 410**.
+
+Desde el entorno activado, ejecutar todas las pruebas:
 
 ```bash
 python -m unittest -v
 ```
 
-## Asignación de referencia
-
-`baseline.greedy_assignment(scenario)` considera equipos disponibles y recorre
-las zonas por penalización descendente, desempatando por identificador. Para
-cada zona elige el equipo libre compatible de menor costo; los empates de costo
-se resuelven por identificador de equipo. Si no hay candidato, la zona queda
-pendiente. Es una heurística de referencia y no garantiza el óptimo.
-
-Devuelve un diccionario con `assignments` (pares `team_id` y `zone_id`),
-`pending_zones` (identificadores), `assignment_cost`, `pending_penalty` y
-`total_cost`. No modifica el escenario. El total suma costos de asignación y
-penalizaciones pendientes, siempre en unidades sintéticas. El futuro optimizador
-deberá usar el mismo objetivo y restricciones de disponibilidad, compatibilidad
-y una asignación como máximo por equipo y zona.
-
-La heurística asigna siempre que encuentra un candidato, incluso si su costo
-supera la penalización de dejar la zona pendiente. En el escenario inicial asigna
-E2 a Z1 y E1 a Z2; quedan Z4 y Z3 pendientes. El costo de asignación es 10,
-la penalización pendiente 400 y el total 410.
-
 ## Asistencia de IA y terceros
 
-Los participantes definen la idea y el alcance del proyecto, toman las decisiones
-y revisan los resultados. Codex apoyó la investigación y preparación del entorno
-antes del evento y la creación de esta base inicial durante el hackathon.
-Esta versión utiliza Streamlit y no incluye datasets de terceros.
+Los participantes definen la idea y el alcance, toman las decisiones y revisan
+los resultados. Codex apoyó la investigación y preparación del entorno antes del
+evento y la programación durante el hackathon. Se utiliza Streamlit y no se
+incluyen datasets de terceros.

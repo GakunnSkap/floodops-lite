@@ -44,7 +44,8 @@ class ScenarioTests(unittest.TestCase):
             ("zones", "priority", True),
             ("zones", "penalty", 0),
             ("zones", "penalty", float("nan")),
-            ("zones", "name", "Zona real"),
+            ("zones", "name", " "),
+            ("teams", "name", None),
             ("teams", "available", 1),
         ]
         for group, field, value in cases:
@@ -59,6 +60,7 @@ class ScenarioTests(unittest.TestCase):
             ("costs", [[1, 2, 3, 4]]),
             ("costs", [[1], [2]]),
             ("simulated", False),
+            ("simulated", 1),
             ("zones", []),
         ):
             with self.subTest(field=field, value=value):
@@ -66,6 +68,15 @@ class ScenarioTests(unittest.TestCase):
                 scenario[field] = value
                 with self.assertRaises(ValueError):
                     validate_scenario(scenario)
+
+    def test_names_do_not_need_a_simulation_keyword(self):
+        scenario = get_scenario()
+        scenario["zones"][0]["name"] = "Zona A"
+        scenario["teams"][0]["name"] = "Equipo 1"
+        validate_scenario(scenario)
+        del scenario["simulated"]
+        with self.assertRaises(ValueError):
+            validate_scenario(scenario)
 
     def test_unavailable_teams_and_incompatible_pairs_are_valid_data(self):
         scenario = get_scenario()

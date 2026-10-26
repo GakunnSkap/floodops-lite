@@ -24,7 +24,7 @@ def get_scenario():
 
 
 def validate_scenario(scenario):
-    """Rechaza entradas inconsistentes con ValueError; no calcula asignaciones."""
+    """Rechaza entradas inconsistentes con ValueError."""
     if not isinstance(scenario, dict) or scenario.get("simulated") is not True:
         raise ValueError("El escenario debe identificarse como simulado.")
 
@@ -43,8 +43,8 @@ def validate_scenario(scenario):
                 raise ValueError(f"Identificador duplicado en {key}: {identifier}.")
             identifiers.add(identifier)
             name = record.get("name")
-            if not isinstance(name, str) or "simulad" not in name.lower():
-                raise ValueError("Cada nombre debe identificar su carácter simulado.")
+            if not isinstance(name, str) or not name.strip():
+                raise ValueError("Cada nombre debe ser un texto no vacío.")
 
     zones = scenario["zones"]
     teams = scenario["teams"]
