@@ -1,9 +1,9 @@
 # FloodOps Lite
 
 Prototipo educativo de IEEE-HKN Hack2Impact 2026 sobre asignación de recursos
-ante inundaciones en Guayaquil. Incluye un escenario sintético y una heurística
-de referencia; la aplicación solo presenta el proyecto. No hay optimizador ni
-mapas, y no es una herramienta validada para responder a emergencias.
+ante inundaciones en Guayaquil. Incluye un escenario sintético, una heurística
+de referencia y un optimizador; la aplicación solo presenta el proyecto.
+No hay mapas y no es una herramienta validada para responder a emergencias.
 
 ## Ejecución
 
@@ -42,7 +42,7 @@ Los números representan esfuerzo sintético, no minutos, distancias ni dinero.
 Cada equipo puede atender como máximo una zona por ronda y cada zona recibir
 como máximo un equipo.
 
-El objetivo compartido será sumar costos de asignación y penalizaciones de zonas
+El objetivo compartido es sumar costos de asignación y penalizaciones de zonas
 pendientes. La escala es un supuesto educativo: priorizar mediante penalizaciones
 no garantiza atender siempre las zonas de mayor prioridad.
 
@@ -65,9 +65,27 @@ Desde el entorno activado, ejecutar todas las pruebas:
 python -m unittest -v
 ```
 
+## Optimización
+
+`optimizer.optimal_assignment(scenario)` devuelve la misma estructura que la
+referencia, sin modificar la entrada. Usa `scipy.optimize.linear_sum_assignment`
+con una fila por zona y columnas para equipos disponibles y tantas opciones
+ficticias como zonas. Una columna real cuesta el costo de asignación; una
+ficticia cuesta la penalización de esa zona. Las incompatibilidades usan infinito,
+no un costo grande arbitrario. Siempre existe una solución finita dejando todas
+las zonas pendientes. Las columnas se usan como máximo una vez, por lo que los
+equipos pueden quedar libres y las zonas reciben como máximo un equipo.
+
+El óptimo inicial es E1→Z1 y E2→Z4, con Z2 y Z3 pendientes:
+**20 + 300 = 320**. Frente a 410, reduce el costo objetivo un **21,95 %**;
+no representa una reducción real de tiempos, daños o víctimas. Los empates pueden
+tener varias soluciones óptimas. Las pruebas contrastan el valor con una
+enumeración independiente, incluida una muestra reproducible de 100 escenarios
+pequeños. La enumeración no forma parte del algoritmo de producción.
+
 ## Asistencia de IA y terceros
 
 Los participantes definen la idea y el alcance, toman las decisiones y revisan
 los resultados. Codex apoyó la investigación y preparación del entorno antes del
-evento y la programación durante el hackathon. Se utiliza Streamlit y no se
+evento y la programación durante el hackathon. Se utilizan Streamlit y SciPy y no se
 incluyen datasets de terceros.
