@@ -33,8 +33,7 @@ python -m streamlit run app.py
 
 ## Asistencia de IA y terceros
 
-Se utilizó Codex para investigación y diagnóstico previos al evento, preparación
-del entorno y asistencia en la creación de esta base inicial durante el evento.
-Las decisiones y los resultados son revisados por el participante humano. El uso
-de IA y los componentes incorporados se documentarán conforme a las reglas del
-hackathon. Esta versión utiliza Streamlit; no incluye datasets de terceros.
+Los participantes definen la idea y el alcance del proyecto, toman las decisiones
+y revisan los resultados. Codex apoyó la investigación y preparación del entorno
+antes del evento y la creación de esta base inicial durante el hackathon.
+Esta versión utiliza Streamlit y no incluye datasets de terceros.
