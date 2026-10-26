@@ -35,6 +35,8 @@ Las cuatro zonas y los dos equipos son ficticios: no hay coordenadas ni datos
 operativos reales. Las zonas tienen `id`, `name`, `priority` y `penalty`; los
 equipos tienen `id`, `name` y `available`. La prioridad va de 1 (baja) a 3 (alta),
 y la penalización por dejar una zona pendiente es `100 × prioridad`.
+El contrato exige listas no vacías y no admite penalizaciones cero ni cambiar
+la penalización sin mantener esa relación con la prioridad.
 
 Las filas de `costs` siguen el orden de los equipos y las columnas el de las zonas.
 Los números representan esfuerzo sintético, no minutos, distancias ni dinero.

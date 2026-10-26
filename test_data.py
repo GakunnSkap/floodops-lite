@@ -29,7 +29,7 @@ class ScenarioTests(unittest.TestCase):
         self.assertEqual(second["costs"][0][0], 8)
 
     def test_rejects_invalid_costs(self):
-        for cost in (-1, float("nan"), float("inf"), "8", True):
+        for cost in (-1, float("nan"), float("inf"), 10**400, "8", True):
             with self.subTest(cost=cost):
                 scenario = get_scenario()
                 scenario["costs"][0][0] = cost

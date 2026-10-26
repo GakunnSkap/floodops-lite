@@ -33,6 +33,16 @@ class OptimizerTests(unittest.TestCase):
         result = optimal_assignment(scenario)
         self.assertEqual(scenario, original)
         self.assertEqual(result, optimal_assignment(scenario))
+        reference = greedy_assignment(scenario)
+        self.assertEqual(scenario, original)
+        self.assertEqual(reference, greedy_assignment(scenario))
+        self.check_constraints(scenario, result)
+        self.check_constraints(scenario, reference)
+        self.assertEqual(result["total_cost"], exhaustive_cost(scenario))
+        self.assertLessEqual(result["total_cost"], reference["total_cost"])
+        return result
+
+    def check_constraints(self, scenario, result):
         teams = {team["id"]: i for i, team in enumerate(scenario["teams"])}
         zones = {zone["id"]: j for j, zone in enumerate(scenario["zones"])}
         assigned_teams = [a["team_id"] for a in result["assignments"]]
@@ -54,9 +64,6 @@ class OptimizerTests(unittest.TestCase):
         self.assertEqual(result["assignment_cost"], cost)
         self.assertEqual(result["pending_penalty"], penalty)
         self.assertEqual(result["total_cost"], cost + penalty)
-        self.assertEqual(result["total_cost"], exhaustive_cost(scenario))
-        self.assertLessEqual(result["total_cost"], greedy_assignment(scenario)["total_cost"])
-        return result
 
     def test_initial_scenario_with_more_zones_than_teams(self):
         scenario = get_scenario()
@@ -144,3 +151,47 @@ class OptimizerTests(unittest.TestCase):
         scenario["costs"][0][0] = float("nan")
         with self.assertRaises(ValueError):
             optimal_assignment(scenario)
+
+    def test_more_available_teams_than_zones_and_zero_costs(self):
+        scenario = get_scenario()
+        scenario["zones"] = scenario["zones"][:1]
+        scenario["costs"] = [[0], [0]]
+        result = self.check_result(scenario)
+        self.assertEqual(len(result["assignments"]), 1)
+        self.assertEqual(result["total_cost"], 0)
+        self.assertEqual(result["pending_zones"], [])
+
+    def test_zone_without_compatible_option(self):
+        scenario = get_scenario()
+        for row in scenario["costs"]:
+            row[0] = None
+        result = self.check_result(scenario)
+        self.assertIn("Z1", result["pending_zones"])
+
+    def test_availability_change_recomputes_solution(self):
+        scenario = get_scenario()
+        self.assertEqual(self.check_result(scenario)["total_cost"], 320)
+        scenario["teams"][1]["available"] = False
+        self.assertEqual(self.check_result(scenario)["total_cost"], 608)
+        scenario["teams"][1]["available"] = True
+        self.assertEqual(self.check_result(scenario)["total_cost"], 320)
+
+    def test_priority_and_penalty_change_together(self):
+        scenario = get_scenario()
+        scenario["zones"][1].update(priority=3, penalty=300)
+        scenario["zones"][3].update(priority=1, penalty=100)
+        result = self.check_result(scenario)
+        self.assertEqual(result["assignments"], [
+            {"team_id": "E2", "zone_id": "Z1"},
+            {"team_id": "E1", "zone_id": "Z2"},
+        ])
+        self.assertEqual(result["total_cost"], 210)
+
+    def test_zero_penalties_and_inconsistent_priority_are_rejected(self):
+        for penalty in (0, 200):
+            with self.subTest(penalty=penalty):
+                scenario = get_scenario()
+                scenario["zones"][0]["penalty"] = penalty
+                for method in (greedy_assignment, optimal_assignment):
+                    with self.assertRaises(ValueError):
+                        method(scenario)

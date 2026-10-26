@@ -68,5 +68,9 @@ def validate_scenario(scenario):
         for cost in row:
             if cost is None:
                 continue
-            if type(cost) not in (int, float) or not isfinite(cost) or cost < 0:
+            try:
+                valid = type(cost) in (int, float) and isfinite(cost) and cost >= 0
+            except OverflowError:
+                valid = False
+            if not valid:
                 raise ValueError("Cada costo debe ser finito y no negativo, o None.")

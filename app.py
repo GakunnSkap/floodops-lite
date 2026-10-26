@@ -6,6 +6,6 @@ st.write(
     "ante escenarios de inundación en Guayaquil, Ecuador."
 )
 st.caption(
-    "Versión inicial: presenta el proyecto. La optimización y los escenarios "
-    "todavía no están implementados. No es un sistema operativo de emergencias."
+    "Versión inicial: presenta el proyecto. El escenario y los métodos de asignación "
+    "todavía no se muestran aquí. No es un sistema operativo de emergencias."
 )
