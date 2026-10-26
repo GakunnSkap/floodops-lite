@@ -1,7 +1,7 @@
 import streamlit as st
 
 from baseline import greedy_assignment
-from data import get_scenario
+from data import SCENARIOS, get_scenario
 from optimizer import optimal_assignment
 from visualization import assignment_chart
 
@@ -53,18 +53,28 @@ try:
     with st.sidebar:
         st.header("Scenario")
         st.caption("Changes apply to this session; source data stays unchanged.")
+        scenario_name = st.selectbox("Demo scenario", SCENARIOS, key="scenario_name")
+        if st.session_state.get("loaded_scenario") != scenario_name:
+            if scenario_name != "Default scenario":
+                scenario = get_scenario(scenario_name)
+            for team in scenario["teams"]:
+                st.session_state[f"available_{team['id']}"] = team["available"]
+            for zone in scenario["zones"]:
+                st.session_state[f"priority_{zone['id']}"] = zone["priority"]
+            st.session_state["loaded_scenario"] = scenario_name
+        st.caption("Selecting a preset resets the controls below. You can then edit them.")
         st.subheader("Team availability")
         for team in scenario["teams"]:
             team["available"] = st.checkbox(
                 f"{team['id']} — {team['name']}",
-                value=team["available"], key=f"available_{team['id']}",
+                key=f"available_{team['id']}",
             )
         st.subheader("Zone priority")
         st.caption("1 = low · 2 = medium · 3 = high. Pending penalty = 100 × priority.")
         for zone in scenario["zones"]:
             zone["priority"] = st.selectbox(
                 f"{zone['id']} — {zone['name']}", [1, 2, 3],
-                index=zone["priority"] - 1, key=f"priority_{zone['id']}",
+                key=f"priority_{zone['id']}",
             )
             zone["penalty"] = 100 * zone["priority"]
         st.caption("Both methods recalculate automatically after each change.")
@@ -93,6 +103,21 @@ with left:
     show_result("Greedy reference", reference, scenario)
 with right:
     show_result("Optimized", optimized, scenario)
+
+reference_pairs = {a["team_id"]: a["zone_id"] for a in reference["assignments"]}
+optimized_pairs = {a["team_id"]: a["zone_id"] for a in optimized["assignments"]}
+changes = [
+    f"{team}: {reference_pairs.get(team, 'unused')} → {optimized_pairs.get(team, 'unused')}"
+    for team in sorted(reference_pairs.keys() | optimized_pairs.keys())
+    if reference_pairs.get(team) != optimized_pairs.get(team)
+]
+st.write("Assignment changes: " + "; ".join(changes) if changes else "Both methods choose the same assignments.")
+st.caption(
+    "Optimized minus reference, in synthetic units: "
+    f"assignment cost {optimized['assignment_cost'] - reference['assignment_cost']:+g}; "
+    f"pending penalties {optimized['pending_penalty'] - reference['pending_penalty']:+g}; "
+    f"total {optimized_cost - reference_cost:+g}."
+)
 
 st.subheader("Illustrative assignment view")
 st.caption(

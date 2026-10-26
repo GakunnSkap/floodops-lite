@@ -21,6 +21,11 @@ con las mismas entradas sin modificar los datos originales. La comparación mues
 asignaciones, zonas pendientes, costos y reducción del objetivo; un empate se
 identifica expresamente y la reducción porcentual aparece como N/A si la referencia
 cuesta cero. La interfaz está en inglés; los nombres conservan su etiqueta simulada.
+El selector ofrece tres escenarios simulados: Default scenario (410 frente a 320),
+Limited resources (E2 no disponible; ambos 608) y Priority shift (Z2 pasa a prioridad
+3 y Z4 a 1; ambos 210). Cambiar de escenario restablece esos valores; después se
+pueden editar los controles. La explicación indica qué asignaciones y componentes
+del costo cambian entre métodos.
 
 La vista ilustrativa usa Vega-Lite nativo de Streamlit: cuadrados para equipos,
 círculos para zonas y enlaces discontinuos para asignaciones. Un selector alterna

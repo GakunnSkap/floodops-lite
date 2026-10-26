@@ -3,7 +3,10 @@
 from math import isfinite
 
 
-def get_scenario():
+SCENARIOS = ("Default scenario", "Limited resources", "Priority shift")
+
+
+def get_scenario(name="Default scenario"):
     """Devuelve una copia nueva del escenario y comprueba su consistencia."""
     scenario = {
         "simulated": True,
@@ -19,6 +22,13 @@ def get_scenario():
         ],
         "costs": [[8, 4, 2, None], [6, 5, None, 12]],
     }
+    if name == "Limited resources":
+        scenario["teams"][1]["available"] = False
+    elif name == "Priority shift":
+        scenario["zones"][1].update(priority=3, penalty=300)
+        scenario["zones"][3].update(priority=1, penalty=100)
+    elif name != "Default scenario":
+        raise ValueError("Escenario desconocido.")
     validate_scenario(scenario)
     return scenario
 
