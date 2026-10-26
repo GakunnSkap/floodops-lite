@@ -11,14 +11,14 @@ def get_scenario(name="Default scenario"):
     scenario = {
         "simulated": True,
         "zones": [
-            {"id": "Z1", "name": "Zona simulada A", "priority": 3, "penalty": 300},
-            {"id": "Z2", "name": "Zona simulada B", "priority": 2, "penalty": 200},
-            {"id": "Z3", "name": "Zona simulada C", "priority": 1, "penalty": 100},
-            {"id": "Z4", "name": "Zona simulada D", "priority": 3, "penalty": 300},
+            {"id": "Z1", "name": "Simulated zone A", "priority": 3, "penalty": 300},
+            {"id": "Z2", "name": "Simulated zone B", "priority": 2, "penalty": 200},
+            {"id": "Z3", "name": "Simulated zone C", "priority": 1, "penalty": 100},
+            {"id": "Z4", "name": "Simulated zone D", "priority": 3, "penalty": 300},
         ],
         "teams": [
-            {"id": "E1", "name": "Equipo simulado 1", "available": True},
-            {"id": "E2", "name": "Equipo simulado 2", "available": True},
+            {"id": "E1", "name": "Simulated team 1", "available": True},
+            {"id": "E2", "name": "Simulated team 2", "available": True},
         ],
         "costs": [[8, 4, 2, None], [6, 5, None, 12]],
     }

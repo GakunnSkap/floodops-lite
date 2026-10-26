@@ -41,6 +41,18 @@ class AppTests(unittest.TestCase):
         self.check_display(app, get_scenario())
         self.assertEqual(app.metric[2].value, "21.95%")
 
+    def test_visible_synthetic_names_are_in_english(self):
+        app = AppTest.from_file("app.py").run()
+        self.assertFalse(app.exception)
+        for control in app.checkbox:
+            self.assertIn("Simulated team", control.label)
+        for control in app.selectbox:
+            if control.key.startswith("priority_"):
+                self.assertIn("Simulated zone", control.label)
+        for table in app.table:
+            if "Name" in table.value.columns:
+                self.assertTrue(all(name.startswith("Simulated zone") for name in table.value["Name"]))
+
     def test_team_availability_recalculates(self):
         app = AppTest.from_file("app.py").run()
         app.checkbox(key="available_E2").uncheck().run()
