@@ -3,6 +3,7 @@ import streamlit as st
 from baseline import greedy_assignment
 from data import get_scenario
 from optimizer import optimal_assignment
+from visualization import assignment_chart
 
 
 def show_result(title, result, scenario):
@@ -92,6 +93,23 @@ with left:
     show_result("Greedy reference", reference, scenario)
 with right:
     show_result("Optimized", optimized, scenario)
+
+st.subheader("Illustrative assignment view")
+st.caption(
+    "Schematic layout, not a geographic map. Positions are illustrative, not real "
+    "locations in Guayaquil. Dashed links show assignments, not roads or safe routes."
+)
+method = st.radio("Method", ["Greedy reference", "Optimized"], horizontal=True)
+selected = reference if method == "Greedy reference" else optimized
+try:
+    st.vega_lite_chart(assignment_chart(scenario, selected), width="stretch", theme=None)
+except (ValueError, RuntimeError):
+    st.warning("The illustrative view is unavailable. Use the comparison tables above.")
+st.caption(
+    "Squares = teams · Circles = simulated zones. Hover for details. "
+    "The same positions are used for both methods. No map tiles or external data "
+    "services are required; the tables above remain available if the chart cannot load."
+)
 
 st.subheader("How to read the results")
 st.write(

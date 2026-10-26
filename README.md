@@ -3,7 +3,7 @@
 Prototipo educativo de IEEE-HKN Hack2Impact 2026 sobre asignación de recursos
 ante inundaciones en Guayaquil. Incluye un escenario sintético, una heurística
 de referencia y un optimizador que se comparan en una aplicación Streamlit.
-No hay mapas y no es una herramienta validada para responder a emergencias.
+No es una herramienta validada para responder a emergencias.
 
 ## Ejecución
 
@@ -21,6 +21,14 @@ con las mismas entradas sin modificar los datos originales. La comparación mues
 asignaciones, zonas pendientes, costos y reducción del objetivo; un empate se
 identifica expresamente y la reducción porcentual aparece como N/A si la referencia
 cuesta cero. La interfaz está en inglés; los nombres conservan su etiqueta simulada.
+
+La vista ilustrativa usa Vega-Lite nativo de Streamlit: cuadrados para equipos,
+círculos para zonas y enlaces discontinuos para asignaciones. Un selector alterna
+los métodos manteniendo las mismas posiciones. El color indica el estado y los
+detalles aparecen al pasar el cursor. Es un esquema sin coordenadas geográficas,
+rutas ni ubicaciones reales; evita asociar la simulación a barrios concretos.
+No requiere Folium, teselas ni servicios cartográficos externos. Si no carga,
+las tablas conservan toda la información de asignación.
 
 En otra computadora, preparar el entorno antes de ejecutar Streamlit:
 
