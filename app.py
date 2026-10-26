@@ -2,6 +2,7 @@ import streamlit as st
 
 from baseline import greedy_assignment
 from data import SCENARIOS, get_scenario
+from explanation import explain_decisions
 from optimizer import optimal_assignment
 from visualization import assignment_chart, cost_chart
 
@@ -120,14 +121,10 @@ with right:
     with st.container(border=True):
         show_result("Optimized", optimized, scenario)
 
-reference_pairs = {a["team_id"]: a["zone_id"] for a in reference["assignments"]}
-optimized_pairs = {a["team_id"]: a["zone_id"] for a in optimized["assignments"]}
-changes = [
-    f"{team}: {reference_pairs.get(team, 'unused')} → {optimized_pairs.get(team, 'unused')}"
-    for team in sorted(reference_pairs.keys() | optimized_pairs.keys())
-    if reference_pairs.get(team) != optimized_pairs.get(team)
-]
-st.write("Assignment changes: " + "; ".join(changes) if changes else "Both methods choose the same assignments.")
+st.subheader("Why do the assignments differ?")
+with st.container(border=True):
+    for line in explain_decisions(scenario, reference, optimized):
+        st.write(line)
 st.caption(
     "Optimized minus reference, in synthetic units: "
     f"assignment cost {optimized['assignment_cost'] - reference['assignment_cost']:+g}; "
