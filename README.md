@@ -55,13 +55,33 @@ explícitas en el objetivo previsto: sumar costos de asignaciones realizadas y
 penalizaciones de zonas sin atender. Ambos usan la misma escala artificial;
 la prioridad es una preferencia mediante penalización, no una garantía absoluta.
 La escala elegida es un supuesto educativo que deberá revisarse antes de modelar.
-Todavía no se calcula ninguna asignación ni se comprueban resultados de un solver.
+Todavía no se implementa un optimizador matemático.
 
 Pruebas del escenario, desde el entorno activado:
 
 ```bash
-python -m unittest -v test_data
+python -m unittest -v
 ```
+
+## Asignación de referencia
+
+`baseline.greedy_assignment(scenario)` considera equipos disponibles y recorre
+las zonas por penalización descendente, desempatando por identificador. Para
+cada zona elige el equipo libre compatible de menor costo; los empates de costo
+se resuelven por identificador de equipo. Si no hay candidato, la zona queda
+pendiente. Es una heurística de referencia y no garantiza el óptimo.
+
+Devuelve un diccionario con `assignments` (pares `team_id` y `zone_id`),
+`pending_zones` (identificadores), `assignment_cost`, `pending_penalty` y
+`total_cost`. No modifica el escenario. El total suma costos de asignación y
+penalizaciones pendientes, siempre en unidades sintéticas. El futuro optimizador
+deberá usar el mismo objetivo y restricciones de disponibilidad, compatibilidad
+y una asignación como máximo por equipo y zona.
+
+La heurística asigna siempre que encuentra un candidato, incluso si su costo
+supera la penalización de dejar la zona pendiente. En el escenario inicial asigna
+E2 a Z1 y E1 a Z2; quedan Z4 y Z3 pendientes. El costo de asignación es 10,
+la penalización pendiente 400 y el total 410.
 
 ## Asistencia de IA y terceros
 
