@@ -17,6 +17,8 @@ This prototype makes that trade-off visible through a small, reproducible exampl
 - Editable team availability and zone priorities, applied to both methods.
 - Assignment tables, pending zones, stacked costs and objective reduction.
 - A dynamic explanation of decision changes and a schematic assignment view.
+- Unserved priority points and Scenario Lab: simulate E2 becoming unavailable
+  without changing the main scenario controls.
 
 Changing a preset resets the controls; you can then edit them manually. The
 schematic uses illustrative positions and assignment links, not real locations
@@ -70,7 +72,7 @@ python -m unittest discover -v
 python -m pip check
 ```
 
-The suite contains 54 tests covering data validation, constraints, presets,
+The suite contains 63 tests covering data validation, constraints, presets,
 controls, charts and explanations. The optimizer is also checked against an
 independent exhaustive enumeration on 100 reproducible small scenarios.
 
