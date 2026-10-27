@@ -164,3 +164,7 @@ st.caption(
     "not guaranteed service. Costs are synthetic units, not response times, money "
     "or measured impact. Different assignments may share the same optimal cost."
 )
+
+from scenario_lab import show_scenario_lab
+
+show_scenario_lab(scenario)
