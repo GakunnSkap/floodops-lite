@@ -99,6 +99,10 @@ reference_cost = reference["total_cost"]
 optimized_cost = optimized["total_cost"]
 reduction = (reference_cost - optimized_cost) / reference_cost * 100 if reference_cost else None
 reduction_column.metric("Objective reduction", f"{reduction:.2f}%" if reduction is not None else "N/A", border=True)
+from priority_indicator import show_unserved_priority
+
+show_unserved_priority(scenario, reference, optimized)
+
 if reference_cost == optimized_cost:
     st.info("Both methods have the same total cost for this scenario.")
 if reference_cost == 0:
